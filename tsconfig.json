@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
     "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -10,9 +12,13 @@
     "outDir": "dist",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "strict": true,
     "paths": {
       "*": ["node_modules/*"]
-    }
+    },
+    "lib": [
+      "ES2019"
+    ]
   },
   "include": [
     "src/**/*"
