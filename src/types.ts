@@ -10,7 +10,7 @@ export const Suit = Object.freeze({
 export interface ICard {
   suit: TCardSuit;
   rank: number;
-  new: boolean;
+  isNew: boolean;
 }
 
 export type TUserHash = string;

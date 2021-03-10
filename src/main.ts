@@ -3,6 +3,8 @@ import windowStateKeeper from 'electron-window-state';
 import path from 'path';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 
+import { isDevelopment } from './shared';
+
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
@@ -31,7 +33,7 @@ const createWindow = (): void => {
   mainWindowState.manage(mainWindow);
 
   // Open the DevTools.
-  if (process.env.NODE_ENV) {
+  if (isDevelopment) {
     mainWindow.webContents.on('did-frame-finish-load', () => {
       mainWindow.webContents.once('devtools-opened', () => {
         mainWindow.focus();
@@ -60,7 +62,7 @@ const createWindow = (): void => {
       const fileURL = request.url.replace('static://', '');
       const filePath = path.join(
         app.getAppPath(),
-        `./webpack/images`,
+        `./.webpack/renderer`,
         fileURL
       );
       callback(filePath);

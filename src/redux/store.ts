@@ -9,17 +9,17 @@ const subset = (state: TRootState, whitelist: string[]) =>
       .filter(([k,]) => whitelist.includes(k))
   );
 
-const loadState = (key: string): TPartialRootState | undefined => {
+const loadState = (key: string): TPartialRootState => {
   try {
     if (!window.storage) {
-      throw "Storage not available.";
+      return {};
     }
     
     const serializedState = <string>window.storage.get(key);
     return serializedState === null ? undefined : JSON.parse(serializedState);
   } catch (error) {
     console.log(`Error reading from localstorage: ${error}`)
-    return undefined;
+    return {};
   }
 };
 
@@ -27,7 +27,8 @@ const saveState = (key: string, whitelist: string[], state: TRootState) => {
   try {
     const serializedState = JSON.stringify(subset(state, whitelist));
     if (!window.storage) {
-      throw "Storage not available.";
+      console.log("Storage not available.");
+      return;
     }
 
     window.storage.set(key, serializedState);
@@ -52,7 +53,7 @@ export const configureStore = (scope = STORE_SCOPES.MAIN) => {
   }
 
   const persistedState = loadState(PERSIST_KEY);
-  const composeEnhancers = (scope === STORE_SCOPES.RENDERER && process.env.NODE_ENV) ?
+  const composeEnhancers = (scope === STORE_SCOPES.RENDERER && window.isDevelopment) ?
     composeWithDevTools({ trace: true }) : compose;
   const store = createStore(rootReducer, persistedState, composeEnhancers(applyMiddleware(...middlewares)));
 

@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 import {
   Redirect,
-  BrowserRouter as Router,
+  MemoryRouter as Router,
   Route,
   Switch,
 } from 'react-router-dom';

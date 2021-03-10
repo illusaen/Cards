@@ -19,7 +19,9 @@
   "license": "MIT",
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "static/appicon/cards"
+      },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
@@ -80,8 +82,10 @@
     "@types/react-redux": "^7.1.16",
     "@types/react-router-dom": "^5.1.7",
     "@types/redux-logger": "^3.0.8",
+    "@types/webpack-env": "^1.16.0",
     "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.17.0",
+    "copy-webpack-plugin": "^6.4.1",
     "css-loader": "^4.2.1",
     "electron": "12.0.0",
     "electron-devtools-installer": "^3.1.1",
