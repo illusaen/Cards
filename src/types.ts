@@ -34,3 +34,8 @@ export interface GameState {
   stack: StackState;
   players: Player[]
 }
+
+export interface RootState {
+  user: UserState;
+  game: GameState;
+}
