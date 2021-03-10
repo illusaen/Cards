@@ -11,11 +11,12 @@ const subset = (state: TRootState, whitelist: string[]) =>
 
 const loadState = (key: string): TPartialRootState => {
   try {
-    if (!window.storage) {
+    if (!window.cards.storage) {
+      console.log("loadState: Storage not available.");
       return {};
     }
-    
-    const serializedState = <string>window.storage.get(key);
+
+    const serializedState = <string>window.cards.storage.get(key);
     return serializedState === null ? undefined : JSON.parse(serializedState);
   } catch (error) {
     console.log(`Error reading from localstorage: ${error}`)
@@ -26,12 +27,12 @@ const loadState = (key: string): TPartialRootState => {
 const saveState = (key: string, whitelist: string[], state: TRootState) => {
   try {
     const serializedState = JSON.stringify(subset(state, whitelist));
-    if (!window.storage) {
-      console.log("Storage not available.");
+    if (!window.cards.storage) {
+      console.log("saveState: Storage not available.");
       return;
     }
 
-    window.storage.set(key, serializedState);
+    window.cards.storage.set(key, serializedState);
   } catch (error) {
     console.log(`Error writing to localstorage: ${error}`)
   }
@@ -47,13 +48,13 @@ export const STORE_SCOPES = {
 
 export const configureStore = (scope = STORE_SCOPES.MAIN) => {
   const middlewares = [];
-  const logger = window.getLogger && window.getLogger();
+  const logger = window.cards.logger && window.cards.logger();
   if (logger) {
     middlewares.push(logger);
   }
 
   const persistedState = loadState(PERSIST_KEY);
-  const composeEnhancers = (scope === STORE_SCOPES.RENDERER && window.isDevelopment) ?
+  const composeEnhancers = (scope === STORE_SCOPES.RENDERER && window.cards.isDevelopment) ?
     composeWithDevTools({ trace: true }) : compose;
   const store = createStore(rootReducer, persistedState, composeEnhancers(applyMiddleware(...middlewares)));
 
