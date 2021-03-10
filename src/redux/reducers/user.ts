@@ -1,11 +1,9 @@
-import { ActionType, createReducer } from 'typesafe-actions';
+import { createReducer } from 'typesafe-actions';
 
-import * as T from '../../types';
+import { ICard, IUser, TUserHash } from '../../types';
 import * as userActions from '../actions/user';
 
-export type UserAction = ActionType<typeof userActions>;
-
-const updateUser = (state: T.UserState[], userId: T.UserHash, withHand: ((hand: T.CardType[]) => T.CardType[])) => {
+const updateUser = (state: IUser[], userId: TUserHash, withHand: ((hand: ICard[]) => ICard[])) => {
   const index = state.findIndex(u => u.id === userId);
   if (index < 0 || index >= state.length) {
     return state;
@@ -16,12 +14,12 @@ const updateUser = (state: T.UserState[], userId: T.UserHash, withHand: ((hand: 
 };
 
 export const usersReducer = createReducer([])
-  .handleAction(userActions.draw, (state: T.UserState[], action: UserAction) => updateUser(
+  .handleAction(userActions.draw, (state: IUser[], action: userActions.TDrawAction) => updateUser(
     state,
     action.meta.user,
     (hand) => [...hand, action.meta.card].flatMap(c => c ? [c] : [])
   ))
-  .handleAction(userActions.discard, (state: T.UserState[], action: UserAction) => updateUser(
+  .handleAction(userActions.discard, (state: IUser[], action: userActions.TDiscardAction) => updateUser(
     state,
     action.meta.user,
     (hand) => {

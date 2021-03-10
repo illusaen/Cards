@@ -1,4 +1,4 @@
-export type CardSuit = number;
+export type TCardSuit = number;
 
 export const Suit = Object.freeze({
   HEART: 1,
@@ -7,35 +7,21 @@ export const Suit = Object.freeze({
   SPADE: 4,
 });
 
-export interface CardType {
-  suit: CardSuit;
+export interface ICard {
+  suit: TCardSuit;
   rank: number;
   new: boolean;
 }
 
-export type UserHash = string;
-export interface UserState {
+export type TUserHash = string;
+export interface IUser {
   name: string;
-  id: UserHash;
+  id: TUserHash;
   isCurrent: boolean;
-  hand: CardType[];
+  hand: ICard[];
 }
 
-export type DiscardState = CardType[];
-export type StackState = CardType[];
-
-export interface Player {
-  id: UserHash;
+export interface IPlayer {
+  id: TUserHash;
   points: number;
-}
-
-export interface GameState {
-  discard: DiscardState;
-  stack: StackState;
-  players: Player[]
-}
-
-export interface RootState {
-  user: UserState;
-  game: GameState;
 }

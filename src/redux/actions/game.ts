@@ -1,4 +1,4 @@
-import { UserHash } from '../../types';
+import { TUserHash } from '../../types';
 import { createAction, createCustomAction } from 'typesafe-actions';
 
 export const GameActions = {
@@ -11,6 +11,6 @@ export const GameActions = {
 
 export const startGame = createAction(GameActions.START)();
 export const endGame = createAction(GameActions.END)();
-export const startTurn = createCustomAction(GameActions.TURN_START, (userHash: UserHash) => ({ meta: userHash }));
-export const endTurn = createCustomAction(GameActions.TURN_END, (userHash: UserHash) => ({ meta: userHash }));
+export const startTurn = createCustomAction(GameActions.TURN_START, (userHash: TUserHash) => ({ meta: userHash }));
+export const endTurn = createCustomAction(GameActions.TURN_END, (userHash: TUserHash) => ({ meta: userHash }));
 export const deal = createAction(GameActions.DEAL)();

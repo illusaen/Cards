@@ -1,15 +1,21 @@
 import { applyMiddleware, compose, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 
-import { rootReducer } from './reducers';
-import * as T from '../types';
+import { rootReducer, TPartialRootState, TRootState } from './reducers';
 
-const loadState = (key: string) => {
+const subset = (state: TRootState, whitelist: string[]) => 
+  Object.fromEntries(
+    Object.entries(state)
+      .filter(([k,]) => whitelist.includes(k))
+  );
+
+const loadState = (key: string): TPartialRootState | undefined => {
   try {
     if (!window.storage) {
       throw "Storage not available.";
     }
     
-    const serializedState = window.storage.get(key);
+    const serializedState = <string>window.storage.get(key);
     return serializedState === null ? undefined : JSON.parse(serializedState);
   } catch (error) {
     console.log(`Error reading from localstorage: ${error}`)
@@ -17,10 +23,9 @@ const loadState = (key: string) => {
   }
 };
 
-const saveState = (key: string, whitelist: string[], state: T.RootState) => {
+const saveState = (key: string, whitelist: string[], state: TRootState) => {
   try {
-    const saved = whitelist.length ? Object.keys(state).filter((key: string) => whitelist.includes(key)).map((key: string) => ({ [key]: state[key] })) : state;
-    const serializedState = JSON.stringify(saved);
+    const serializedState = JSON.stringify(subset(state, whitelist));
     if (!window.storage) {
       throw "Storage not available.";
     }
@@ -48,7 +53,7 @@ export const configureStore = (scope = STORE_SCOPES.MAIN) => {
 
   const persistedState = loadState(PERSIST_KEY);
   const composeEnhancers = (scope === STORE_SCOPES.RENDERER && process.env.NODE_ENV) ?
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ trace: true }) : compose;
+    composeWithDevTools({ trace: true }) : compose;
   const store = createStore(rootReducer, persistedState, composeEnhancers(applyMiddleware(...middlewares)));
 
   store.subscribe(() => saveState(PERSIST_KEY, PERSIST_WHITELIST, store.getState()));

@@ -1,5 +1,6 @@
 import Store from 'electron-store';
 import type * as Redux from 'redux';
+import { TPartialRootState } from './redux/reducers';
 
 declare global {
   interface Window {
@@ -17,4 +18,4 @@ window.getLogger = (): (Redux.Middleware | undefined) => {
   }
 };
 
-window.storage = new Store();
+window.storage = new Store<TPartialRootState>();

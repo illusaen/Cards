@@ -1,7 +1,7 @@
 import React from 'react';
-import {CardType} from '../types';
+import {ICard} from '../types';
 
-export const Card = ({ suit, rank }: CardType): JSX.Element => {
+export const Card = ({ suit, rank }: ICard): JSX.Element => {
   return (
     <div>
       `Card ${suit} ${rank}`

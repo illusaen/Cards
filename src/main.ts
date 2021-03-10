@@ -30,15 +30,20 @@ const createWindow = (): void => {
   // Registers listeners on the window so state is automatically updated.
   mainWindowState.manage(mainWindow);
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
   // Open the DevTools.
   if (process.env.NODE_ENV) {
-    mainWindow.webContents.openDevTools();
-    installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS]);
+    mainWindow.webContents.on('did-frame-finish-load', () => {
+      mainWindow.webContents.once('devtools-opened', () => {
+        mainWindow.focus();
+      });
+      mainWindow.webContents.openDevTools();
+      installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS]);
+    });
   }
 
+  // and load the index.html of the app.
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
