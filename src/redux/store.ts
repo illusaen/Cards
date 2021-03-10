@@ -1,42 +1,7 @@
 import { applyMiddleware, compose, createStore } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 
-import { rootReducer, TPartialRootState, TRootState } from './reducers';
-
-const subset = (state: TRootState, whitelist: string[]) => 
-  Object.fromEntries(
-    Object.entries(state)
-      .filter(([k,]) => whitelist.includes(k))
-  );
-
-const loadState = (key: string): TPartialRootState => {
-  try {
-    if (!window.cards.storage) {
-      console.log("loadState: Storage not available.");
-      return {};
-    }
-
-    const serializedState = <string>window.cards.storage.get(key);
-    return serializedState === null ? undefined : JSON.parse(serializedState);
-  } catch (error) {
-    console.log(`Error reading from localstorage: ${error}`)
-    return {};
-  }
-};
-
-const saveState = (key: string, whitelist: string[], state: TRootState) => {
-  try {
-    const serializedState = JSON.stringify(subset(state, whitelist));
-    if (!window.cards.storage) {
-      console.log("saveState: Storage not available.");
-      return;
-    }
-
-    window.cards.storage.set(key, serializedState);
-  } catch (error) {
-    console.log(`Error writing to localstorage: ${error}`)
-  }
-};
+import { rootReducer } from './reducers';
 
 const PERSIST_KEY = 'root';
 const PERSIST_WHITELIST = ['settings'];
@@ -53,12 +18,19 @@ export const configureStore = (scope = STORE_SCOPES.MAIN) => {
     middlewares.push(logger);
   }
 
-  const persistedState = loadState(PERSIST_KEY);
+  const loadedState = window.cards.storage.load(PERSIST_KEY);
+  let persistedState = {};
+  try {
+    persistedState = JSON.parse(loadedState);
+  } catch (error) {
+    console.log(`Parsing localstorage key "${PERSIST_KEY}" failed with ${error}.`);
+  }
+
   const composeEnhancers = (scope === STORE_SCOPES.RENDERER && window.cards.isDevelopment) ?
     composeWithDevTools({ trace: true }) : compose;
   const store = createStore(rootReducer, persistedState, composeEnhancers(applyMiddleware(...middlewares)));
 
-  store.subscribe(() => saveState(PERSIST_KEY, PERSIST_WHITELIST, store.getState()));
+  store.subscribe(() => window.cards.storage.save(PERSIST_KEY, PERSIST_WHITELIST, store.getState()));
 
   return store;
 };

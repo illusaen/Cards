@@ -1,15 +1,18 @@
 import { contextBridge } from 'electron';
-import ElectronStore from 'electron-store';
 import type * as Redux from 'redux';
 
-import { isDevelopment } from './shared';
-import { TPartialRootState } from './redux/reducers';
+import { isDevelopment } from './utils';
+import { load, save } from './storage';
+import { TRootState } from '../redux/reducers';
 
 declare global {
   interface Window {
     cards: {
       isDevelopment: boolean;
-      storage: ElectronStore;
+      storage: {
+        load: (key: string) => string;
+        save: (key: string, whitelist: string[], state: TRootState) => void;
+      };
       logger: () => Redux.Middleware | undefined;
     }
   }
@@ -23,10 +26,8 @@ const logger = (): (Redux.Middleware | undefined) => {
   }
 };
 
-const storage = new ElectronStore<TPartialRootState>();
-console.log(storage.get)
 contextBridge.exposeInMainWorld('cards', {
   isDevelopment,
   logger,
-  storage,
+  storage: { load, save },
 });

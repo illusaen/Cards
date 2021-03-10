@@ -1,12 +1,15 @@
 import { app, BrowserWindow, session } from 'electron';
-import windowStateKeeper from 'electron-window-state';
 import path from 'path';
+import windowStateKeeper from 'electron-window-state';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
+import ElectronStore from 'electron-store';
 
-import { isDevelopment } from './shared';
+import { isDevelopment } from './utils';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+ElectronStore.initRenderer();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require

@@ -1,4 +1,4 @@
-import { ICard, Suit } from './types';
+import { ICard, Suit } from '../types';
 
 export const shuffle = (cards: ICard[]): void => {
   for (let i = cards.length - 1; i > 0; i--) {
