@@ -1,27 +1,65 @@
-export type TCardSuit = number;
+export enum ESuit {
+  HEART = 1,
+  DIAMOND,
+  CLUB,
+  SPADE,
+}
 
-export const Suit = Object.freeze({
-  HEART: 1,
-  DIAMOND: 2,
-  CLUB: 3,
-  SPADE: 4,
-});
+export enum EFaceRank {
+  JACK = 11,
+  QUEEN,
+  KING,
+  ACE,
+  JOKER,
+}
 
+export type TCardId = string;
 export interface ICard {
-  suit: TCardSuit;
+  id: TCardId;
+  suit: ESuit;
   rank: number;
   isNew: boolean;
 }
 
-export type TUserHash = string;
+export type TUserId = string;
 export interface IUser {
+  id: TUserId;
   name: string;
-  id: TUserHash;
-  isCurrent: boolean;
-  hand: ICard[];
 }
 
-export interface IPlayer {
-  id: TUserHash;
-  points: number;
+export interface IUserHand {
+  id: TUserId;
+  hand: TCardId[];
+}
+
+export interface IScore {
+  player: TUserId;
+  score: number;
+}
+
+export interface ICardRules {
+  shuffleDiscard: boolean;
+}
+
+export interface ICardState {
+  deck: ICard[];
+  discard: TCardId[];
+  stack: TCardId[];
+  hands: IUserHand[];
+  rules: ICardRules;
+}
+
+export interface IPlayerState {
+  players: IUser[];
+}
+
+export interface IScoreState {
+  scores: IScore[];
+}
+
+export interface IGameState {
+  running: boolean;
+  rounds: number;
+  turn: TUserId | undefined;
+  order: TUserId[];
 }

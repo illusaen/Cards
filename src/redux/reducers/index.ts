@@ -1,9 +1,8 @@
 import { combineReducers } from 'redux';
 import { StateType } from 'typesafe-actions';
 
-import { usersReducer } from './user';
-// import { discardReducer, stackReducer } from './game';
+import { cardsReducer } from './cards';
+import { gameReducer } from './game';
 
-export const rootReducer = combineReducers({ users: usersReducer });
+export const rootReducer = combineReducers({ cards: cardsReducer, game: gameReducer });
 export type TRootState = StateType<typeof rootReducer>;
-export type TPartialRootState = Partial<TRootState>;

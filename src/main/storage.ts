@@ -1,7 +1,8 @@
 import ElectronStore from 'electron-store';
 
-import { TPartialRootState, TRootState } from '../redux/reducers';
+import { TRootState } from '../redux/reducers';
 
+type TPartialRootState = Partial<TRootState>;
 const electronStore = new ElectronStore<TPartialRootState>({ cwd: 'cards' });
 
 const subset = (state: TRootState, whitelist: string[]) => 

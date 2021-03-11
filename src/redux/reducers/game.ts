@@ -1,31 +1,26 @@
-import { ActionType, createReducer } from 'typesafe-actions';
+import { createReducer } from 'typesafe-actions';
 
-import * as T from '../../types';
+import { IGameState, TUserId } from '../../types';
 import * as gameActions from '../actions/game';
 
-export type GameAction = ActionType<typeof gameActions>;
+const initialGame: IGameState = {
+  running: false,
+  rounds: 0,
+  turn: undefined,
+  order: [],
+};
 
-// const updateUser = (state: T.UserState[], userId: T.UserHash, withHand: ((hand: T.CardType[]) => T.CardType[])) => {
-//   const index = state.findIndex(u => u.id === userId);
-//   if (index < 0 || index >= state.length) {
-//     return state;
-//   }
+const next = (order: TUserId[], current: TUserId | undefined) => {
+  if (current === undefined) {
+    return order[0];
+  }
 
-//   const newUser = { ...state[index], hand: withHand(state[index].hand) };
-//   return [...state].splice(index, 1, newUser);
-// };
+  const index = order.findIndex(el => el === current);
+  return index < 0 ? current : order[(index + 1) % order.length];
+};
 
-export const stackReducer = createReducer([])
-  // .handleAction(userActions.draw, (state: T.UserState[], action: UserAction) => updateUser(
-  //   state,
-  //   action.meta.user,
-  //   (hand) => [...hand, action.meta.card].flatMap(c => c ? [c] : [])
-  // ))
-  // .handleAction(userActions.discard, (state: T.UserState[], action: UserAction) => updateUser(
-  //   state,
-  //   action.meta.user,
-  //   (hand) => {
-  //     const newHand = [...hand];
-  //     return newHand.splice(action.payload, 1);
-  //   }
-  // ));
+export const gameReducer = createReducer(initialGame)
+  .handleAction(gameActions.startGame, (state: IGameState) => ({ ...state, running: true }))
+  .handleAction(gameActions.endGame, (state: IGameState) => ({ ...state, running: false }))
+  .handleAction(gameActions.nextPlayer, (state: IGameState) => state.order.length ? { ...state, turn: next(state.order, state.turn) } : state)
+  .handleAction(gameActions.startRound, (state: IGameState) => ({ ...state, rounds: state.rounds + 1 }));
