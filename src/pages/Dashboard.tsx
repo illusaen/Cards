@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, Grommet, Heading } from 'grommet';
 import { useDispatch, useSelector } from 'react-redux';
 import { isGameRunning } from '../redux/selectors';
-import { actions } from '../redux/actions';
+import actions from '../redux/actions';
 
 export const Dashboard = (): JSX.Element => {
   const running = useSelector(isGameRunning);

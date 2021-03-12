@@ -1,13 +1,11 @@
 import { ESuit, ICard, IUserHand, TCardId, TUserId } from '../../types';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from '@reduxjs/toolkit';
 
-export const shuffle = (cards: TCardId[]): TCardId[] => {
-  const newCards = [...cards];
-  for (let i = newCards.length - 1; i > 0; i--) {
+export const shuffle = (cards: TCardId[]): void => {
+  for (let i = cards.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
+    [cards[i], cards[j]] = [cards[j], cards[i]];
   }
-  return newCards;
 };
 
 const CARDS_PER_SUIT = 13;
@@ -20,10 +18,10 @@ export const deck = (count: number, result: ICard[] = []): ICard[] => {
 
   const isNew = false;
   const single = CARD_NUMBERS.flatMap((rank: number) => [
-    { suit: ESuit.HEART, rank, isNew, id: uuidv4() },
-    { suit: ESuit.DIAMOND, rank, isNew, id: uuidv4() },
-    { suit: ESuit.SPADE, rank, isNew, id: uuidv4() },
-    { suit: ESuit.CLUB, rank, isNew, id: uuidv4() }
+    { suit: ESuit.HEART, rank, isNew, id: nanoid() },
+    { suit: ESuit.DIAMOND, rank, isNew, id: nanoid() },
+    { suit: ESuit.SPADE, rank, isNew, id: nanoid() },
+    { suit: ESuit.CLUB, rank, isNew, id: nanoid() }
   ]);
   return deck(count - 1, [...result, ...single]);
 };

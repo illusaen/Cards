@@ -51,13 +51,9 @@ export interface ICardState {
   rules: ICardRules;
 }
 
-export interface IPlayerState {
-  players: IUser[];
-}
+export type IPlayerState = IUser[];
 
-export interface IScoreState {
-  scores: IScore[];
-}
+export type IScoreState = IScore[];
 
 export interface IGameState {
   running: boolean;

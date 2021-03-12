@@ -1,7 +1,7 @@
 import { contextBridge } from 'electron';
 
 import { isDevelopment } from '../utils';
-import { load, save } from './storage';
+import { load, save, TPartialRootState } from './storage';
 import { TRootState } from '../../src/redux/reducers';
 
 declare global {
@@ -9,8 +9,8 @@ declare global {
     cards: {
       isDevelopment: boolean;
       storage: {
-        load: (key: string) => string;
-        save: (key: string, whitelist: string[], state: TRootState) => void;
+        load: () => TPartialRootState;
+        save: (state: TRootState) => void;
       };
     }
   }

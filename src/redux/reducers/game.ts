@@ -1,10 +1,9 @@
-import { createReducer } from 'typesafe-actions';
+import { createSlice } from '@reduxjs/toolkit';
 
 import { IGameState, TUserId } from '../../types';
-import { TRootAction } from '../actions';
-import * as gameActions from '../actions/game';
+import { startGame } from '../actions/shared';
 
-const initialGame: IGameState = {
+const initialGameState: IGameState = {
   running: false,
   rounds: 0,
   turn: undefined,
@@ -20,19 +19,28 @@ const next = (order: TUserId[], current: TUserId | undefined) => {
   return index < 0 ? current : order[(index + 1) % order.length];
 };
 
-export const gameReducer = createReducer<IGameState, TRootAction>(initialGame)
-    .handleAction(
-      [gameActions.startGame, gameActions.endGame, gameActions.nextPlayer, gameActions.startRound, gameActions.endRound],
-      (state, { type }) => {
-        const { GameActions } = gameActions;
-        switch (type) {
-          case GameActions.START:
-            return { ...state, running: true };
-          case GameActions.END:
-            return { ...state, running: false };
-          case GameActions.NEXT_PLAYER:
-            return state.order.length ? { ...state, turn: next(state.order, state.turn) } : state;
-          case GameActions.ROUND_START:
-            return { ...state, rounds: state.rounds + 1 };
-        }
-      });
+const gameSlice = createSlice({
+  name: 'GAME',
+  initialState: initialGameState,
+  reducers: {
+    endGame(state) {
+      state.running = false;
+    },
+
+    nextPlayer(state) {
+      if (state.order.length) {
+        state.turn = next(state.order, state.turn);
+      }
+    },
+
+    startRound(state) {
+      state.rounds++;
+    },
+  },
+  extraReducers: builder => {
+    builder.addCase(startGame, (state) => { state.running = true });
+  }
+});
+
+export const { endGame, nextPlayer, startRound } = gameSlice.actions;
+export const gameReducer = gameSlice.reducer;

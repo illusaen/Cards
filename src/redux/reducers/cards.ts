@@ -1,53 +1,22 @@
 import { deck, deal, shuffle } from './utils';
-import { createReducer } from 'typesafe-actions';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-import { ICardState, IUserHand, TCardId, TUserId } from '../../types';
-import { actions, TRootAction } from '../actions';
+import { ICardState, TCardId, TUserId } from '../../types';
+import { startGame } from '../actions/shared';
 
-type ModifyHandFunction = (hand: TCardId[]) => TCardId[];
-
-const updateUser = (hands: IUserHand[], userId: TUserId, modify: ModifyHandFunction): { hands: IUserHand[], userIndex: number } => {
-  const index = hands.findIndex(u => u.id === userId);
-  if (index < 0) {
-    return { hands, userIndex: -1 };
-  }
-
-  const newUserHand: IUserHand = { ...hands[index], hand: modify(hands[index].hand) };
-  return { hands: [...hands].splice(index, 1, newUserHand), userIndex: index };
-};
-
-const fillStack = (state: ICardState, drawn: number): ICardState => {
+const fillStack = (state: ICardState, drawn: number): void => {
   if (drawn <= state.stack.length) {
-    return { ...state };
+    return;
   }
 
-  const newStack = [...state.stack];
-  const discarded = [...state.discard].reverse();
-  newStack.push(...(state.rules.shuffleDiscard ? shuffle(discarded) : discarded));
-
-  return { ...state, stack: newStack, discard: [] };
+  state.stack.concat(state.discard.reverse());
+  if (state.rules.shuffleDiscard) {
+    shuffle(state.stack);
+  }
+  state.discard = [];
 }
 
-const reorderHand = (card: TCardId, index: number): ModifyHandFunction =>
-  (hand) => {
-    const newHand = [...hand];
-    const currentIndex = newHand.findIndex(el => el === card);
-    if (currentIndex < 0) {
-      return hand;
-    }
-
-    const [removed] = newHand.splice(currentIndex, 1);
-    newHand.splice(index, 0, removed);
-    return newHand;
-  };
-
-const drawToHand = (stack: TCardId[], count: number): ModifyHandFunction =>
-  (hand) => [...hand, ...stack.slice(0, count - 1)];
-
-const discardFromHand = (index: number): ModifyHandFunction =>
-  (hand) => [...hand.slice(0, index), ...hand.slice(index + 1)];
-
-const initialCards: ICardState = {
+const initialCardsState: ICardState = {
   deck: [],
   discard: [],
   stack: [],
@@ -59,39 +28,88 @@ const initialCards: ICardState = {
   },
 };
 
-export const cardsReducer = createReducer<ICardState, TRootAction>(initialCards)
-  .handleAction([actions.discard, actions.draw], (state, { meta, payload, type }) => {
-    const isDrawAction = type === actions.CardActions.DRAW;
-    const filledStackState = isDrawAction ? fillStack(state, payload) : { ...state };
-    
-    const { hands, userIndex } = updateUser(
-      state.hands,
-      meta,
-      isDrawAction ? drawToHand(state.stack, payload) : discardFromHand(payload)
-    );
+const cardsSlice = createSlice({
+  name: 'CARDS',
+  initialState: initialCardsState,
+  reducers: {
+    drawCard: {
+      reducer: (state, action: PayloadAction<number, string, TUserId>) => {
+        const { meta, payload } = action;
+        fillStack(state, payload);
+        const index = state.hands.findIndex(u => u.id === meta);
+        if (index < 0) {
+          return;
+        }
 
-    if (isDrawAction) {
-      filledStackState.stack.splice(0, payload);
-    } else {
-      filledStackState.discard.push(state.hands[userIndex].hand[payload]);
-    }
-    
-    return { ...filledStackState, hands };
-  })
-  .handleAction(actions.reorder, (state, { meta, payload }) => ({
-    ...state,
-    hands: updateUser(
-      state.hands,
-      meta,
-      reorderHand(payload.card, payload.index)
-    ).hands
-  }))
-  .handleAction(actions.startGame, () => initialCards)
-  .handleAction(actions.deal, (state, { payload }) => {
-    const decks = deck(state.rules.decks);
-    if (!payload.length) {
-      return { ...state, deck: decks, stack: decks.map(card => card.id) };
-    }
-    const { stack, hands } = deal(decks, payload, state.rules.cardsPerPlayer);
-    return { ...state, deck: decks, stack, hands };
-  });
+        const removed = state.stack.splice(0, payload);
+        state.hands[index].hand.push(...removed);
+      },
+      prepare: (count: number, userId: TUserId) => ({
+        payload: count,
+        meta: userId
+      }),
+    },
+
+    discardCard: {
+      reducer: (state, action: PayloadAction<number, string, TUserId>) => {
+        const { meta, payload } = action;
+        const index = state.hands.findIndex(u => u.id === meta);
+        if (index < 0) {
+          return;
+        }
+
+        const [removed] = state.hands[index].hand.splice(payload, 1);
+        state.discard.push(removed);
+      },
+      prepare: (index: number, userId: TUserId) => ({
+        payload: index,
+        meta: userId,
+      }),
+    },
+
+    reorderCard: {
+      reducer: (state, action: PayloadAction<{ card: TCardId, index: number }, string, TUserId>) => {
+        const { meta, payload } = action;
+        const index = state.hands.findIndex(u => u.id === meta);
+        if (index < 0) {
+          return;
+        }
+
+        const currentCardIndex = state.hands[index].hand.findIndex(el => el === payload.card);
+        if ( currentCardIndex < 0) {
+          return;
+        }
+
+        const [removed] = state.hands[index].hand.splice(currentCardIndex, 1);
+        state.hands[index].hand.splice(payload.index, 0, removed);
+      },
+      prepare: (card: TCardId, index: number, userId: TUserId) => ({
+        payload: { card, index },
+        meta: userId,
+      }),
+    },
+
+    dealCards: (state, action: PayloadAction<TUserId[]>) => {
+      const { payload } = action;
+      state.deck = deck(state.rules.decks);
+      if (! payload.length) {
+        state.stack = state.deck.map(card => card.id);
+        return;
+      }
+
+      const { stack, hands } = deal(state.deck, payload, state.rules.cardsPerPlayer);
+      state.stack = stack;
+      state.hands = hands;
+    },
+  },
+
+  extraReducers: builder => {
+    builder.addCase(startGame, (state) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      state = initialCardsState;
+    });
+  }
+});
+
+export const { drawCard, discardCard, reorderCard, dealCards } = cardsSlice.actions;
+export const cardsReducer = cardsSlice.reducer;

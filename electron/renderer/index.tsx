@@ -9,13 +9,12 @@ import {
 } from 'react-router-dom';
 
 import { Dashboard } from '../../src/pages';
-import { configureStore, STORE_SCOPES } from '../../src/redux/store';
+import { rendererStore } from '../../src/redux/store';
 import { isDevelopment } from '../utils';
 import './index.css';
 
-const store = configureStore(STORE_SCOPES.RENDERER);
 const app = (
-  <Provider store={store}>
+  <Provider store={rendererStore}>
     <Router>
       <Switch>
         <Route exact path="/main_window" render={() => <Redirect to="/" />} />

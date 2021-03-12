@@ -1,12 +1,14 @@
-import { Epic, ofType } from 'redux-observable';
-import { map, withLatestFrom } from 'rxjs/operators';
+import { Action } from '@reduxjs/toolkit';
+import { Epic } from 'redux-observable';
+import { filter, map, withLatestFrom } from 'rxjs/operators';
 
-import { TRootAction } from '../actions';
-import { deal, GameActions } from '../actions/game';
+import actions from '../actions';
 import { TRootState } from '../reducers';
 
-export const startGameEpic: Epic<TRootAction, TRootAction, TRootState> = (action$, state$) => action$.pipe(
-  ofType(GameActions.START),
+const { dealCards, startGame } = actions;
+
+export const startGameEpic: Epic<Action, Action, TRootState> = (action$, state$) => action$.pipe(
+  filter(startGame.match),
   withLatestFrom(state$),
-  map(([, state]) => deal(state.players))
+  map(([, state]) => dealCards(state.players.map(player => player.id)))
 );

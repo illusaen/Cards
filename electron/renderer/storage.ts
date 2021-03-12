@@ -2,8 +2,11 @@ import ElectronStore from 'electron-store';
 
 import { TRootState } from '../../src/redux/reducers';
 
-type TPartialRootState = Partial<TRootState>;
+export type TPartialRootState = Partial<TRootState>;
 const electronStore = new ElectronStore<TPartialRootState>({ cwd: 'cards' });
+
+const PERSIST_KEY = 'root';
+const PERSIST_WHITELIST = ['cards'];
 
 const subset = (state: TRootState, whitelist: string[]) => 
   Object.fromEntries(
@@ -11,20 +14,20 @@ const subset = (state: TRootState, whitelist: string[]) =>
       .filter(([k,]) => whitelist.includes(k))
   );
 
-export const load = (key: string): string => {
-  const EMPTY_JSON = '{}';
+export const load = (): TPartialRootState => {
   try {
-    return <string>electronStore.get(key, EMPTY_JSON);
+    const loaded = <string>electronStore.get(PERSIST_KEY, '{}');
+    return JSON.parse(loaded);
   } catch (error) {
     console.log(`Error reading from localstorage: ${error}`)
-    return EMPTY_JSON;
+    return {};
   }
 };
 
-export const save = (key: string, whitelist: string[], state: TRootState): void => {
+export const save = (state: TRootState): void => {
   try {
-    const serializedState = JSON.stringify(subset(state, whitelist));
-    electronStore.set(key, serializedState);
+    const serializedState = JSON.stringify(subset(state, PERSIST_WHITELIST));
+    electronStore.set(PERSIST_KEY, serializedState);
   } catch (error) {
     console.log(`Error writing to localstorage: ${error}`);
   }
