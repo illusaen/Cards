@@ -1,16 +1,26 @@
 import { TCardId, TUserId } from '../../types';
-import { ActionType, createAction } from 'typesafe-actions';
+import { createAction } from 'typesafe-actions';
 
-const UserActions = {
+export const UserActions = {
   DRAW: 'DRAW_CARD',
   DISCARD: 'DISCARD_CARD',
   REORDER: 'REORDER_CARD',
 };
 
-export const draw = createAction(UserActions.DRAW)<number, { userId: TUserId }>();
-export const discard = createAction(UserActions.DISCARD)<number, { userId: TUserId }>();
-export const reorder = createAction(UserActions.REORDER)<{ card: TCardId, index: number }, { userId: TUserId }>();
+export const draw = createAction(
+  UserActions.DRAW,
+  (count: number, { }: TUserId) => count,
+  ({ }: number, userId: TUserId) => userId
+)<number, TUserId>();
 
-export type TDrawAction = ActionType<typeof draw>;
-export type TDiscardAction = ActionType<typeof discard>;
-export type TReorderAction = ActionType<typeof reorder>;
+export const discard = createAction(
+  UserActions.DISCARD,
+  (index: number, { }: TUserId) => index,
+  ({ }: number, userId: TUserId) => userId
+)<number, TUserId>();
+
+export const reorder = createAction(
+  UserActions.REORDER,
+  (card: TCardId, index: number, { }: TUserId) => ({ card, index }),
+  ({ }: TCardId, { }: number, userId: TUserId) => userId
+)<{ card: TCardId, index: number }, TUserId>();
