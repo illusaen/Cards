@@ -8,17 +8,6 @@ import { isDevelopment } from '../utils';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
-const setCSP = () => {
-  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': ['default-src \'none\'; img-src \'self\' static:; script-src \'self\'; style-src \'self\'; connect-src \'self\''],
-      }
-    });
-  });
-}
-
 const registerStaticDataProtocol = () => {
   session.defaultSession.protocol.registerFileProtocol(
     'static',
@@ -62,7 +51,5 @@ export const createWindow = (): void => {
     installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS]);
   }
 
-  // TODO: Fix this so it works with devtools.
-  // setCSP();
   registerStaticDataProtocol();
 };
