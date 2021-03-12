@@ -1,6 +1,6 @@
 import ElectronStore from 'electron-store';
 
-import { TRootState } from '../redux/reducers';
+import { TRootState } from '../../src/redux/reducers';
 
 type TPartialRootState = Partial<TRootState>;
 const electronStore = new ElectronStore<TPartialRootState>({ cwd: 'cards' });

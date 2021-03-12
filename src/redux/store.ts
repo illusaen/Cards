@@ -13,11 +13,7 @@ export const STORE_SCOPES = {
 };
 
 export const configureStore = (scope = STORE_SCOPES.MAIN): Redux.Store => {
-  const middlewares = [];
-  const logger = window.cards.logger && window.cards.logger();
-  if (logger) {
-    middlewares.push(logger);
-  }
+  const middlewares: Redux.Middleware[] = [];
 
   let persistedState = {};
   if (scope === STORE_SCOPES.RENDERER) {

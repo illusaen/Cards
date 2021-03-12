@@ -4,7 +4,7 @@ import windowStateKeeper from 'electron-window-state';
 import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electron-devtools-installer';
 import ElectronStore from 'electron-store';
 
-import { isDevelopment } from './utils';
+import { isDevelopment } from '../utils';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -37,13 +37,13 @@ const createWindow = (): void => {
 
   // Open the DevTools.
   if (isDevelopment) {
-    mainWindow.webContents.on('did-frame-finish-load', () => {
-      mainWindow.webContents.once('devtools-opened', () => {
-        mainWindow.focus();
-      });
+    // mainWindow.webContents.on('did-frame-finish-load', () => {
+    //   mainWindow.webContents.once('devtools-opened', () => {
+    //     mainWindow.focus();
+    //   });
       mainWindow.webContents.openDevTools();
       installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS]);
-    });
+    // });
   }
 
   // and load the index.html of the app.
@@ -94,6 +94,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
