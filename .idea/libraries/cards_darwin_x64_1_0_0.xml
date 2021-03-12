@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="cards-darwin-x64-1.0.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/make/zip/darwin/x64/cards-darwin-x64-1.0.0.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

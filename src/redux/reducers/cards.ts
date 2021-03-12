@@ -1,10 +1,9 @@
-import { shuffle } from '../../components/utils';
-import { ActionType, createReducer } from 'typesafe-actions';
+import { deck, deal, shuffle } from './utils';
+import { createReducer } from 'typesafe-actions';
 
 import { ICardState, IUserHand, TCardId, TUserId } from '../../types';
-import * as userActions from '../actions/cards';
+import { actions, TRootAction } from '../actions';
 
-type UserAction = ActionType<typeof userActions>;
 type ModifyHandFunction = (hand: TCardId[]) => TCardId[];
 
 const updateUser = (hands: IUserHand[], userId: TUserId, modify: ModifyHandFunction): { hands: IUserHand[], userIndex: number } => {
@@ -53,12 +52,16 @@ const initialCards: ICardState = {
   discard: [],
   stack: [],
   hands: [],
-  rules: { shuffleDiscard: false },
+  rules: {
+    shuffleDiscard: false,
+    cardsPerPlayer: 8,
+    decks: 1
+  },
 };
 
-export const cardsReducer = createReducer<ICardState, UserAction>(initialCards)
-  .handleAction([userActions.discard, userActions.draw], (state, { meta, payload, type }) => {
-    const isDrawAction = type === userActions.UserActions.DRAW;
+export const cardsReducer = createReducer<ICardState, TRootAction>(initialCards)
+  .handleAction([actions.discard, actions.draw], (state, { meta, payload, type }) => {
+    const isDrawAction = type === actions.CardActions.DRAW;
     const filledStackState = isDrawAction ? fillStack(state, payload) : { ...state };
     
     const { hands, userIndex } = updateUser(
@@ -75,11 +78,20 @@ export const cardsReducer = createReducer<ICardState, UserAction>(initialCards)
     
     return { ...filledStackState, hands };
   })
-  .handleAction(userActions.reorder, (state, { meta, payload }) => ({
+  .handleAction(actions.reorder, (state, { meta, payload }) => ({
     ...state,
     hands: updateUser(
       state.hands,
       meta,
       reorderHand(payload.card, payload.index)
     ).hands
-  }));
+  }))
+  .handleAction(actions.startGame, () => initialCards)
+  .handleAction(actions.deal, (state, { payload }) => {
+    const decks = deck(state.rules.decks);
+    if (!payload.length) {
+      return { ...state, deck: decks, stack: decks.map(card => card.id) };
+    }
+    const { stack, hands } = deal(decks, payload, state.rules.cardsPerPlayer);
+    return { ...state, deck: decks, stack, hands };
+  });

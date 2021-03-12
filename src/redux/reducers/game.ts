@@ -1,6 +1,7 @@
 import { createReducer } from 'typesafe-actions';
 
 import { IGameState, TUserId } from '../../types';
+import { TRootAction } from '../actions';
 import * as gameActions from '../actions/game';
 
 const initialGame: IGameState = {
@@ -19,8 +20,19 @@ const next = (order: TUserId[], current: TUserId | undefined) => {
   return index < 0 ? current : order[(index + 1) % order.length];
 };
 
-export const gameReducer = createReducer(initialGame)
-  .handleAction(gameActions.startGame, (state: IGameState) => ({ ...state, running: true }))
-  .handleAction(gameActions.endGame, (state: IGameState) => ({ ...state, running: false }))
-  .handleAction(gameActions.nextPlayer, (state: IGameState) => state.order.length ? { ...state, turn: next(state.order, state.turn) } : state)
-  .handleAction(gameActions.startRound, (state: IGameState) => ({ ...state, rounds: state.rounds + 1 }));
+export const gameReducer = createReducer<IGameState, TRootAction>(initialGame)
+    .handleAction(
+      [gameActions.startGame, gameActions.endGame, gameActions.nextPlayer, gameActions.startRound, gameActions.endRound],
+      (state, { type }) => {
+        const { GameActions } = gameActions;
+        switch (type) {
+          case GameActions.START:
+            return { ...state, running: true };
+          case GameActions.END:
+            return { ...state, running: false };
+          case GameActions.NEXT_PLAYER:
+            return state.order.length ? { ...state, turn: next(state.order, state.turn) } : state;
+          case GameActions.ROUND_START:
+            return { ...state, rounds: state.rounds + 1 };
+        }
+      });

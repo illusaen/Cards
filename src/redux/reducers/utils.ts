@@ -1,4 +1,4 @@
-import { ESuit, ICard, IUserHand, TCardId, TUserId } from '../types';
+import { ESuit, ICard, IUserHand, TCardId, TUserId } from '../../types';
 import { v4 as uuidv4 } from 'uuid';
 
 export const shuffle = (cards: TCardId[]): TCardId[] => {
@@ -28,16 +28,20 @@ export const deck = (count: number, result: ICard[] = []): ICard[] => {
   return deck(count - 1, [...result, ...single]);
 };
 
-export const deal = (deck: ICard[], players: TUserId[], cards: number): IUserHand[] => {
+export const deal = (deck: ICard[], players: TUserId[], cards: number): { stack: TCardId[], hands: IUserHand[] } => {
   // eslint-disable-next-line prefer-spread
   const result: IUserHand[] = players.map((id) => ({ id, hand: [] }));
-  return deck.reduce((acc, current, index) => {
+  const stack: TCardId[] = [];
+  const hands = deck.reduce((acc, current, index) => {
     const i = (index % players.length) - 1;
     if (acc[i].hand.length >= cards) {
+      stack.push(current.id);
       return acc;
     }
 
     acc[i].hand.push(current.id);
     return acc;
   }, result);
+
+  return { stack, hands };
 };

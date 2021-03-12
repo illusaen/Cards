@@ -39,6 +39,8 @@ export interface IScore {
 
 export interface ICardRules {
   shuffleDiscard: boolean;
+  cardsPerPlayer: number;
+  decks: number;
 }
 
 export interface ICardState {
