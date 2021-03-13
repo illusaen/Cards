@@ -1,16 +1,17 @@
 import { contextBridge } from 'electron';
+import { isDeepStrictEqual } from 'util';
 
 import { isDevelopment } from '../utils';
-import { load, save, TPartialRootState } from './storage';
-import { TRootState } from '../../src/redux/reducers';
+import { load, save } from './storage';
 
 declare global {
   interface Window {
     cards: {
       isDevelopment: boolean;
       storage: {
-        load: () => TPartialRootState;
-        save: (state: TRootState) => void;
+        isDeepStrictEqual: typeof isDeepStrictEqual;
+        load: typeof load;
+        save: typeof save;
       };
     }
   }
@@ -18,5 +19,5 @@ declare global {
 
 contextBridge.exposeInMainWorld('cards', {
   isDevelopment,
-  storage: { load, save },
+  storage: { isDeepStrictEqual, load, save },
 });

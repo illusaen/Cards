@@ -11,12 +11,16 @@ export const STORE_SCOPES = {
 };
 
 export type TServices = {
+  isDeepStrictEqual: typeof window.cards.storage.isDeepStrictEqual;
   persist: typeof window.cards.storage.save;
 }
 
 export const rendererStore = (() => {
   const epicMiddleware = createEpicMiddleware<AnyAction, AnyAction, TRootState, TServices>({
-    dependencies: { persist: window.cards.storage.save },
+    dependencies: {
+      isDeepStrictEqual: window.cards.storage.isDeepStrictEqual,
+      persist: window.cards.storage.save,
+    },
   });
   const middlewares = [epicMiddleware];
   const store = configureStore({
