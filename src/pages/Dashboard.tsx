@@ -1,31 +1,25 @@
 import React from 'react';
-import { Box, Button, Grommet, Heading } from 'grommet';
-import { useDispatch, useSelector } from 'react-redux';
-import { isGameRunning } from '../redux/selectors';
-import actions from '../redux/actions';
+import { Card, CardHeader, CardBody, Grommet, Grid, Heading, Text } from 'grommet';
+import { Navigator, theme } from '../components';
 
 export const Dashboard = (): JSX.Element => {
-  const running = useSelector(isGameRunning);
-  const dispatch = useDispatch();
   return (
-    <Grommet plain>
-      <Box
-        direction='column'
-        align='center'
-        justify='center'
-        background={{ image: 'url(static:///images/background.jpg)', size: 'contain', opacity: 'medium' }}
-        pad={{ vertical: 'small', horizontal: 'medium' }}
-        elevation='medium'
-        margin='medium'
-        fill={true}
-      >
-        <Heading alignSelf='center' fill={true} level='2' responsive={true} textAlign='center'>Cards</Heading>
-        <Button color='primary' label='Friends' />
-        <Button
-          color='primary'
-          label={`${running ? 'Stop' : 'Start'} Game`}
-          onClick={() => dispatch(running ? actions.endGame() : actions.startGame() )} />
-      </Box>
+    <Grommet theme={theme} themeMode={window.cards.darkMode.setting === 'dark' ? 'dark' : 'light'}>
+      <Grid columns={{'size': 'flex', 'count': 1}}>
+        <Navigator />
+        <Card background={{ image: 'url(static:///images/background.jpg)', size: 'cover', opacity: 'medium' }}>
+          <CardHeader align="center" direction="row" flex={false} justify="between" gap="medium" pad="small">
+            <Heading textAlign="center">
+              Cards
+            </Heading>
+          </CardHeader>
+          <CardBody pad="small">
+            <Text>
+              To begin, add some friends and then create a game!
+            </Text>
+          </CardBody>
+        </Card>
+      </Grid>
     </Grommet>
   );
 };
